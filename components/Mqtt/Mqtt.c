@@ -2,10 +2,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "esp_wifi.h"
-#include "esp_system.h"
-#include "nvs_flash.h"
-#include "esp_event_loop.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -13,18 +9,23 @@
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
 
+#include "esp_wifi.h"
+#include "esp_system.h"
+#include "nvs_flash.h"
+#include "esp_event_loop.h"
+#include "esp_log.h"
+
 #include "lwip/sockets.h"
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
 
-#include "esp_log.h"
+
 #include "mqtt_client.h"
 #include "Mqtt.h"
 #include "Json_parse.h"
 #include "Smartconfig.h"
 #include "E2prom.h"
 #include "Led.h"
-#include "Beep.h"
 #include "libGSM.h"
 
 #define MQTT_JSON_TYPE  0X03
@@ -48,6 +49,8 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
     switch (event->event_id)
     {
+        case MQTT_EVENT_BEFORE_CONNECT:
+            break;
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
 
@@ -88,11 +91,11 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
             crsp_topic[4]='p';
             if(strcmp(event->data,"0")==0)//off
             {
-                Beep_Off();
+                
             }
             else if(strcmp(event->data,"1")==0)//on
             {
-                Beep_On();
+                
             }
             //parse_objects_mqtt(event->data);//收到平台MQTT数据并解析
             bzero(event->data,strlen(event->data));

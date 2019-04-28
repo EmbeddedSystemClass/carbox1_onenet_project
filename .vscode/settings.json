@@ -62,7 +62,8 @@
         "beep.h": "c",
         "pppapi.h": "c",
         "libgsm.h": "c",
-        "gnss.h": "c"
+        "gnss.h": "c",
+        "minmea.h": "c"
     },
     "files.autoGuessEncoding": true,
 

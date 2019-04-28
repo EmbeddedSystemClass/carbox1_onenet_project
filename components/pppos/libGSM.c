@@ -21,11 +21,11 @@
 #include "lwip/dns.h"
 #include "Led.h"
 
-#define GSM_GPIO_TX 	(GPIO_NUM_5)
-#define GSM_GPIO_RX 	(GPIO_NUM_17)
+#define GSM_GPIO_TX 	(GPIO_NUM_23)
+#define GSM_GPIO_RX 	(GPIO_NUM_22)
 #define GSM_UART_BDRATE 	115200
 
-#define GPIO_GSMPWR		(GPIO_NUM_18)
+#define GPIO_GSMPWR		(GPIO_NUM_21)
 
 
 #ifdef CONFIG_GSM_DEBUG
@@ -182,15 +182,15 @@ static GSM_Cmd cmd_Connect =
 static GSM_Cmd *GSM_Init[] =
 {
 		&cmd_AT,
-		&cmd_Reset,
+		//&cmd_Reset,
 		&cmd_EchoOff,
-		&cmd_gnss,
 		&cmd_RFOn,
-		&cmd_NoSMSInd,
+		//&cmd_NoSMSInd,
 		&cmd_Pin,
 		//&cmd_Reg,
 		
 		&cmd_APN,
+        &cmd_gnss,
 		&cmd_Connect,
 };
 
@@ -754,12 +754,12 @@ void GSM_poweron(void)
     //configure GPIO with the given settings
     gpio_config(&io_conf);  
 
-	ESP_LOGI(TAG, "power key down");
-	gpio_set_level(GPIO_GSMPWR, 0);
-	vTaskDelay(8000 / portTICK_RATE_MS);
+	//ESP_LOGI(TAG, "power key down");
+	//gpio_set_level(GPIO_GSMPWR, 0);
+	//vTaskDelay(8000 / portTICK_RATE_MS);
 	gpio_set_level(GPIO_GSMPWR, 1);
 	ESP_LOGI(TAG, "power key up");
-	vTaskDelay(6000 / portTICK_RATE_MS);
+	vTaskDelay(2000 / portTICK_RATE_MS);
 }
 
 

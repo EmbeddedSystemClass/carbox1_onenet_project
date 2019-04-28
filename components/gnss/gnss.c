@@ -8,44 +8,48 @@
 #include "Led.h"
 
 #define UART2_TXD  (UART_PIN_NO_CHANGE)
-#define UART2_RXD  (GPIO_NUM_27)
+#define UART2_RXD  (GPIO_NUM_16)
 #define UART2_RTS  (UART_PIN_NO_CHANGE)
 #define UART2_CTS  (UART_PIN_NO_CHANGE)
 
-#define BUF_SIZE    1024
+#define BUF_SIZE    2048
 
 static char tag[] = "GNSS";
 
 
 void GNSS_READ_task(void* arg)
 {
-	char data_u2[BUF_SIZE];
-	char rmc[256];
+	char data_u2[BUF_SIZE]="\0";
+	char rmc[256]="\0";
 	int rmc_len=0;
 	while(1) 
 	{
-		
-		int u2_len = uart_read_bytes(UART_NUM_2, (uint8_t *)data_u2, BUF_SIZE, 80 / portTICK_RATE_MS);
+		int u2_len = uart_read_bytes(UART_NUM_2, (uint8_t *)data_u2, BUF_SIZE, 300 / portTICK_RATE_MS);
 		if(u2_len>0)
 		{
-			u2_len=0;
-			//ESP_LOGI(tag, "u2=%s", data_u2);
-			char* rmc_start=strstr(data_u2,"$GNRMC");
-			char* rmc_end=strchr(data_u2,'\n');
-			if((rmc_start!=NULL)&&(rmc_end!=NULL))
-			{
-				rmc_len=rmc_end-rmc_start;
-				strncpy(rmc,rmc_start,rmc_len-1);
-			}
-			//printf("rmc_len=%d\n",rmc_len);			
-			//printf("rmc=%s\n",rmc);
+			
+			//ESP_LOGI(tag, "u2=%s,len=%d", data_u2,u2_len);
+            u2_len=0;
+            if(data_u2[0]=='$')
+            {
+                char* rmc_start=strstr(data_u2,"$GNRMC");
+                char* rmc_end=strchr(rmc_start,'\n');
+                if((rmc_start!=NULL)&&(rmc_end!=NULL))
+                {
+                    rmc_len=rmc_end-rmc_start;
+                    strncpy(rmc,rmc_start,rmc_len-1);
+                }
+                //printf("rmc_len=%d\n",rmc_len);			
+			    //printf("rmc=%s\n",rmc);
+            }
+
 			switch(minmea_sentence_id(rmc, false)) 
 			{
 				case MINMEA_SENTENCE_RMC:
 					//ESP_LOGI(tag, "Sentence - MINMEA_SENTENCE_RMC");
 					;
 					struct minmea_sentence_rmc frame;
-					if (minmea_parse_rmc(&frame, data_u2)) 
+					if (minmea_parse_rmc(&frame, rmc)) 
 					{
 						/*ESP_LOGI(tag, "$xxRMC: raw coordinates and speed: (%d/%d,%d/%d) %d/%d",
 										frame.latitude.value, frame.latitude.scale,
@@ -102,23 +106,24 @@ void GNSS_init(void)
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.pin_bit_mask = 1 << UART2_RXD;
     io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pull_down_en = 0;
-    io_conf.pull_up_en = 0;
+
     gpio_config(&io_conf);
     
     
     uart_config_t uart_config = 
 	{
-        .baud_rate = 115200,
+        .baud_rate = 9600,
         .data_bits = UART_DATA_8_BITS,
         .parity    = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
     };
 
+    gpio_set_pull_mode(UART2_RXD, 0);
+
     uart_param_config(UART_NUM_2, &uart_config);
     uart_set_pin(UART_NUM_2, UART2_TXD, UART2_RXD, UART2_RTS, UART2_CTS);
     uart_driver_install(UART_NUM_2, BUF_SIZE * 2, 0, 0, NULL, 0);
-	xTaskCreate(&GNSS_READ_task, "GNSS_READ_task", 8192, NULL, 10, NULL);
+	xTaskCreate(&GNSS_READ_task, "GNSS_READ_task", 10240, NULL, 10, NULL);
 
 }

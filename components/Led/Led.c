@@ -5,8 +5,8 @@
 
 #include "Led.h"
 
-#define GPIO_LED_G    33
-#define GPIO_LED_R    32
+#define GPIO_LED_G    18
+#define GPIO_LED_R    5
 
 static void Led_Task(void* arg)
 {

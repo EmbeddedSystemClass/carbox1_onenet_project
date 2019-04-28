@@ -13,7 +13,6 @@
 #include "Smartconfig.h"
 #include "E2prom.h"
 #include "Http.h"
-#include "Beep.h"
 #include "sht31.h"
 #include "gnss.h"
 

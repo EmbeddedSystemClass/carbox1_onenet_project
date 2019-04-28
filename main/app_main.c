@@ -19,7 +19,6 @@
 #include "RtcUsr.h"
 
 #include "Key.h"
-#include "Beep.h"
 #include "sht31.h"
 #include "libGSM.h"
 #include "gnss.h"
@@ -88,9 +87,9 @@ void app_main(void)
   i2c_init();
   Uart0_Init();
   key_Init();
-  Beep_Init();
-  ppposInit(); 
   GNSS_init();
+  ppposInit(); 
+  
 
   xTaskCreate(Uart0_Task, "Uart0_Task", 4096, NULL, 10, NULL);
 
@@ -117,6 +116,7 @@ void app_main(void)
 
   //阻塞等待ppp连接
   xEventGroupWaitBits(ppp_event_group, PPP_CONNECTED_BIT , false, true, portMAX_DELAY); 
+
 
 
   //模拟清空DeviceId，激活后获取
