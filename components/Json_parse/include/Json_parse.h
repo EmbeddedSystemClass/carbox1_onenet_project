@@ -15,4 +15,6 @@ esp_err_t parse_objects_mqtt(char *json_data);
 esp_err_t parse_Uart0(char *json_data);
 void create_mqtt_json(creat_json *pCreat_json);
 
+int year,month,day,hour,min,sec;
+
 #endif

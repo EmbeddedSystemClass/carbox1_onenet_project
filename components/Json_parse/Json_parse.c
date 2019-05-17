@@ -15,6 +15,7 @@
 #include "Http.h"
 #include "sht31.h"
 #include "gnss.h"
+#include "RtcUsr.h"
 
 
 
@@ -244,12 +245,13 @@ void create_mqtt_json(creat_json *pCreat_json)
 	}
 
     cJSON_AddItemToObject(root, "speed", cJSON_CreateNumber((int)speed));  
-    if(longitude>0)
+    if(valid==1) 
     {
         cJSON *next = cJSON_CreateObject();
         cJSON_AddItemToObject(root, "position", next);
         cJSON_AddItemToObject(next, "lon", cJSON_CreateNumber(longitude));
         cJSON_AddItemToObject(next, "lat", cJSON_CreateNumber(latitude));
+        Rtc_Read(&year,&month,&day,&hour,&min,&sec);
     }
     
 

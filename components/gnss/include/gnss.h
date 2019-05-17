@@ -6,4 +6,7 @@ extern void GNSS_init(void);
 float latitude;
 float longitude;
 double speed;
+int valid;
+
+
 #endif

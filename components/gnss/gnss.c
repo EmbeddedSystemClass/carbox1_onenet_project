@@ -6,6 +6,7 @@
 #include "minmea.h"
 #include "gnss.h"
 #include "Led.h"
+#include "RtcUsr.h"
 
 #define UART2_TXD  (UART_PIN_NO_CHANGE)
 #define UART2_RXD  (GPIO_NUM_16)
@@ -22,6 +23,7 @@ void GNSS_READ_task(void* arg)
 	char data_u2[BUF_SIZE]="\0";
 	char rmc[256]="\0";
 	int rmc_len=0;
+    struct minmea_sentence_rmc frame;
 	while(1) 
 	{
 		int u2_len = uart_read_bytes(UART_NUM_2, (uint8_t *)data_u2, BUF_SIZE, 300 / portTICK_RATE_MS);
@@ -40,15 +42,13 @@ void GNSS_READ_task(void* arg)
                     strncpy(rmc,rmc_start,rmc_len-1);
                 }
                 //printf("rmc_len=%d\n",rmc_len);			
-			    //printf("rmc=%s\n",rmc);
+			    printf("rmc=%s\n",rmc);
             }
 
 			switch(minmea_sentence_id(rmc, false)) 
 			{
 				case MINMEA_SENTENCE_RMC:
-					//ESP_LOGI(tag, "Sentence - MINMEA_SENTENCE_RMC");
-					;
-					struct minmea_sentence_rmc frame;
+					//ESP_LOGI(tag, "Sentence - MINMEA_SENTENCE_RMC");					
 					if (minmea_parse_rmc(&frame, rmc)) 
 					{
 						/*ESP_LOGI(tag, "$xxRMC: raw coordinates and speed: (%d/%d,%d/%d) %d/%d",
@@ -63,14 +63,28 @@ void GNSS_READ_task(void* arg)
 						longitude=minmea_tocoord(&frame.longitude);
 						speed=minmea_tofloat(&frame.speed);
 						speed=speed*1.852;
-						if(latitude>0)
+                        valid=frame.valid;
+                        if(speed<2)
+                        {
+                            speed=0;
+                        }
+						if(valid==1) //A有效定位
 						{
-							Led_R_On();
+                            /*printf( "TIME: %d:%d:%d %d-%d-%d\n",
+                                    frame.time.hours,
+                                    frame.time.minutes,
+                                    frame.time.seconds,
+                                    frame.date.day,
+                                    frame.date.month,
+                                    frame.date.year);*/
+                            Rtc_Set(2000+frame.date.year,frame.date.month,frame.date.day,frame.time.hours,frame.time.minutes,frame.time.seconds);
+                            
+                            Led_R_On();
 							vTaskDelay(200 / portTICK_RATE_MS);
 							Led_R_Off();
 						}
 
-						
+                        
 						//ESP_LOGI(tag, "latitude=%f,longitude=%f,speed=%f",latitude,longitude,speed);
 					}
 					else 

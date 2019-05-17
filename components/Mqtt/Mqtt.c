@@ -155,7 +155,7 @@ static void MqttSend_Task(void* arg)
         xEventGroupWaitBits(ppp_event_group, PPP_CONNECTED_BIT , false, true, portMAX_DELAY); 
         xEventGroupWaitBits(mqtt_event_group, MQTT_CONNECTED_BIT , false, true, portMAX_DELAY); 
         Mqtt_Send_Msg("$dp");
-        vTaskDelay(3000 / portTICK_RATE_MS);
+        vTaskDelay(1000 / portTICK_RATE_MS);
     }
     
 }

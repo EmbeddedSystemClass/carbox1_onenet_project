@@ -19,7 +19,7 @@ void Rtc_Set(int year,int mon,int day,int hour,int min,int sec)
     tm.tm_min = min;
     tm.tm_sec = sec;
     time_t t = mktime(&tm);
-    ESP_LOGI(TAG, "Setting time: %s", asctime(&tm));
+    //ESP_LOGI(TAG, "Setting time: %s", asctime(&tm));
     struct timeval now = { .tv_sec = t };
     settimeofday(&now, NULL);
 }
@@ -29,6 +29,7 @@ void Rtc_Read(int* year,int* month,int* day,int* hour,int* min,int* sec)
     time_t timep;
     struct tm *p;
     time (&timep);
+    timep=timep+28800;
     p=gmtime(&timep);
     *year=(1900+p->tm_year);
     *month=(1+p->tm_mon);
@@ -36,7 +37,7 @@ void Rtc_Read(int* year,int* month,int* day,int* hour,int* min,int* sec)
     *hour=p->tm_hour;
     *min=p->tm_min;
     *sec=p->tm_sec;
-    //ESP_LOGI(TAG, "Read:%d-%d-%d %d:%d:%d No.%d",(1900+p->tm_year),(1+p->tm_mon),p->tm_mday,p->tm_hour,p->tm_min,p->tm_sec,(1+p->tm_yday));
+    ESP_LOGI(TAG, "Read:%d-%d-%d %d:%d:%d",(1900+p->tm_year),(1+p->tm_mon),p->tm_mday,p->tm_hour,p->tm_min,p->tm_sec);
     
     
     /*printf("%d\n",p->tm_sec); //获取当前秒
